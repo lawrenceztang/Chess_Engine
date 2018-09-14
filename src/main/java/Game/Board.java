@@ -1,5 +1,7 @@
 package Game;
 
+import Util.Util;
+
 import java.util.ArrayList;
 
 public class Board {
@@ -16,6 +18,11 @@ public class Board {
 
     public ArrayList<ArrayList<Integer>> blackPieces;
 
+
+    public Board(ArrayList<ArrayList<Integer>> whitePieces, ArrayList<ArrayList<Integer>> blackPieces) {
+        this.whitePieces = Util.createCopy(whitePieces);
+        this.blackPieces = Util.createCopy(blackPieces);
+    }
 
     public Board() {
         placePieces();
