@@ -13,20 +13,29 @@ public class Board {
     public final int PIECE_QUEEN = 4;
     public final int PIECE_KING = 5;
 
+    public final static int PAWN_VALUE = 1;
+    public final static int KNIGHT_VALUE = 3;
+    public final static int BISHOP_VALUE = 3;
+    public final static int ROOK_VALUE = 5;
+    public final static int QUEEN_VALUE = 9;
+    public final static int KING_VALUE = 100;
+
+
     //{{pieceID, columnNum, rowNum}...}
     public ArrayList<ArrayList<Integer>> whitePieces;
 
     public ArrayList<ArrayList<Integer>> blackPieces;
 
-    public final boolean WHITE_TURN = false;
-    public final boolean BLACK_TURN = true;
+    public final boolean WHITE = false;
+    public final boolean BLACK = true;
 
-    public boolean turn = WHITE_TURN;
+    public boolean turn = WHITE;
 
 
-    public Board(ArrayList<ArrayList<Integer>> whitePieces, ArrayList<ArrayList<Integer>> blackPieces) {
+    public Board(ArrayList<ArrayList<Integer>> whitePieces, ArrayList<ArrayList<Integer>> blackPieces, boolean turn) {
         this.whitePieces = Util.createCopy(whitePieces);
         this.blackPieces = Util.createCopy(blackPieces);
+        this.turn = turn;
     }
 
     public Board() {
@@ -35,10 +44,10 @@ public class Board {
     }
 
     //output:{{x initial, y initial, x after, y after}...}
-    public ArrayList<ArrayList<Integer>> getPossibleMoves() {
-        ArrayList<ArrayList<Integer>> out = new ArrayList<ArrayList<Integer>>();
+    public ArrayList<ArrayList<ArrayList<Integer>>> getPossibleMoves() {
+        ArrayList<ArrayList<ArrayList<Integer>>> out = new ArrayList<ArrayList<ArrayList<Integer>>>();
 
-        if(turn == WHITE_TURN) {
+        if(turn == WHITE) {
             for (int i = 0; i < whitePieces.size(); i++) {
                 for(int x = 0; x < 8; x++) {
                     for(int y = 0; y < 8; y++) {
@@ -46,31 +55,60 @@ public class Board {
                         list.add(x);
                         list.add(y);
                         if(checkValidity(whitePieces.get(i), list)) {
-                            ArrayList<Integer> list1 = new ArrayList<Integer>();
-                            list1.add(whitePieces.get(i).get(0));
-                            list1.add(whitePieces.get(i).get(1));
-                            list1.add(list.get(0));
-                            list1.add(list.get(1));
+                            ArrayList<ArrayList<Integer>> list1 = new ArrayList<ArrayList<Integer>>();
+                            list1.add(new ArrayList<Integer>());
+                            list1.add(new ArrayList<Integer>());
+                            list1.get(0).add(null);
+                            list1.get(0).add(whitePieces.get(i).get(0));
+                            list1.get(0).add(whitePieces.get(i).get(1));
+                            list1.get(1).add(null);
+                            list1.get(1).add(list.get(0));
+                            list1.get(1).add(list.get(1));
                             out.add(list1);
                         }
                     }
                 }
             }
         }
+        else {
+            for (int i = 0; i < blackPieces.size(); i++) {
+                for(int x = 0; x < 8; x++) {
+                    for(int y = 0; y < 8; y++) {
+                        ArrayList<Integer> list = new ArrayList<Integer>();
+                        list.add(null);
+                        list.add(x);
+                        list.add(y);
+                        if(checkValidity(blackPieces.get(i), list)) {
+                            ArrayList<ArrayList<Integer>> list1 = new ArrayList<ArrayList<Integer>>();
+                            list1.add(new ArrayList<Integer>());
+                            list1.add(new ArrayList<Integer>());
+                            list1.get(0).add(null);
+                            list1.get(0).add(blackPieces.get(i).get(1));
+                            list1.get(0).add(blackPieces.get(i).get(2));
+                            list1.get(1).add(null);
+                            list1.get(1).add(list.get(0));
+                            list1.get(1).add(list.get(1));
+                            out.add(list1);
+                        }
+                    }
+                }
+            }
+        }
+        return out;
     }
 
-    public void movePieces(ArrayList<Integer> positionStart, ArrayList<Integer> positionEnd) {
+    public boolean movePieces(ArrayList<Integer> positionStart, ArrayList<Integer> positionEnd) {
 
         if (checkValidity(positionStart, positionEnd)) {
-            if (turn == WHITE_TURN) {
+            if (turn == WHITE) {
                 int temp = Util.searchEqualEntry(blackPieces, positionEnd);
                 if (temp != Util.NO_ENTRY) {
                     blackPieces.remove(temp);
                 }
 
                 temp = Util.searchEqualEntry(whitePieces, positionStart);
+                whitePieces.get(temp).set(1, positionEnd.get(1));
                 whitePieces.get(temp).set(2, positionEnd.get(2));
-                whitePieces.get(temp).set(3, positionEnd.get(3));
 
             } else {
                 int temp = Util.searchEqualEntry(whitePieces, positionEnd);
@@ -79,32 +117,34 @@ public class Board {
                 }
 
                 temp = Util.searchEqualEntry(blackPieces, positionStart);
+                blackPieces.get(temp).set(1, positionEnd.get(1));
                 blackPieces.get(temp).set(2, positionEnd.get(2));
-                blackPieces.get(temp).set(3, positionEnd.get(3));
             }
-
+            turn = !turn;
+            return true;
         }
 
-        turn = !turn;
+        return false;
+
     }
 
     public boolean checkValidity(ArrayList<Integer> positionStart, ArrayList<Integer> positionEnd) {
 
-        if (turn == BLACK_TURN && Util.searchEqualEntry(blackPieces, positionEnd) != Util.NO_ENTRY) {
-            return false;
-        } else if (turn == WHITE_TURN && Util.searchEqualEntry(whitePieces, positionEnd) != Util.NO_ENTRY) {
-            return false;
-        }
-
         positionEnd.add(0, null);
         positionStart.add(0, null);
+
+        if (turn == BLACK && Util.searchEqualEntry(blackPieces, positionEnd) != Util.NO_ENTRY) {
+            return false;
+        } else if (turn == WHITE && Util.searchEqualEntry(whitePieces, positionEnd) != Util.NO_ENTRY) {
+            return false;
+        }
 
         int type;
         int temp = Util.searchEqualEntry(whitePieces, positionStart);
         int temp1 = Util.searchEqualEntry(blackPieces, positionStart);
-        if (temp != Util.NO_ENTRY && turn == WHITE_TURN) {
+        if (temp != Util.NO_ENTRY && turn == WHITE) {
             type = whitePieces.get(temp).get(0);
-        } else if (temp1 != Util.NO_ENTRY && turn == BLACK_TURN) {
+        } else if (temp1 != Util.NO_ENTRY && turn == BLACK) {
             type = blackPieces.get(temp1).get(0);
         } else {
             return false;
@@ -113,8 +153,8 @@ public class Board {
         positionStart.set(0, type);
 
         //in check when piece moved?
-        Board copy = new Board(whitePieces, blackPieces);
-        if(turn == BLACK_TURN) {
+        Board copy = new Board(whitePieces, blackPieces, turn);
+        if(turn == BLACK) {
             temp = Util.searchEqualEntry(whitePieces, positionEnd);
             if(temp != -1) {
                 copy.whitePieces.remove(temp);
@@ -130,7 +170,7 @@ public class Board {
             kingFind.add(null);
 
             for(int i = 0; i < copy.whitePieces.size(); i++) {
-                if(checkAbleToMove(whitePieces.get(i), blackPieces.get(Util.searchEqualEntry(blackPieces, kingFind)))) {
+                if(checkAbleToMove(copy.whitePieces.get(i), copy.blackPieces.get(Util.searchEqualEntry(copy.blackPieces, kingFind)))) {
                     return false;
                 }
             }
@@ -151,13 +191,14 @@ public class Board {
             kingFind.add(null);
 
             for(int i = 0; i < copy.blackPieces.size(); i++) {
-                if(checkAbleToMove(blackPieces.get(i), whitePieces.get(Util.searchEqualEntry(whitePieces, kingFind)))) {
+                if(checkAbleToMove(copy.blackPieces.get(i), copy.whitePieces.get(Util.searchEqualEntry(copy.whitePieces, kingFind)))) {
                     return false;
                 }
             }
         }
 
-
+        ArrayList<Integer> test = new ArrayList<Integer>();
+        test.add(0);
         if (checkAbleToMove(positionStart, positionEnd)) {
             return true;
         } else {
@@ -168,19 +209,15 @@ public class Board {
 
     public boolean checkAbleToMove(ArrayList<Integer> pieceStart, ArrayList<Integer> pieceEnd) {
 
-
-
-
-
         if (pieceStart.get(0) == PIECE_PAWN) {
-            if (turn == WHITE_TURN) {
-                if ((pieceEnd.get(2) == pieceStart.get(2) + 1 || pieceEnd.get(2) == pieceStart.get(2) - 1 || pieceEnd.get(2) == pieceStart.get(2)) && pieceEnd.get(1) == pieceStart.get(1) + 1) {
+            if (turn == WHITE) {
+                if ((pieceEnd.get(1) == pieceStart.get(1) + 1 || pieceEnd.get(1) == pieceStart.get(1) - 1 || pieceEnd.get(1) == pieceStart.get(1)) && pieceEnd.get(2) == pieceStart.get(2) + 1) {
                     return true;
                 } else {
                     return false;
                 }
             } else {
-                if ((pieceEnd.get(2) == pieceStart.get(2) + 1 || pieceEnd.get(2) == pieceStart.get(2) - 1 || pieceEnd.get(2) == pieceStart.get(2)) && pieceEnd.get(1) == pieceStart.get(1) - 1) {
+                if ((pieceEnd.get(1) == pieceStart.get(1) + 1 || pieceEnd.get(1) == pieceStart.get(1) - 1 || pieceEnd.get(1) == pieceStart.get(1)) && pieceEnd.get(2) == pieceStart.get(2) - 1) {
                     return true;
                 } else {
                     return false;
@@ -230,7 +267,7 @@ public class Board {
 
             for (int y = 0 - 1; y <= 1; y += 2) {
 
-                int distance = 0;
+                int distance = 1;
                 while (true) {
 
                     ArrayList<Integer> list = new ArrayList<Integer>();
@@ -249,13 +286,13 @@ public class Board {
 
                 for (int x = 0 - 1; x <= 1; x += 2) {
 
-                    distance = 0;
+                    distance = 1;
                     while (true) {
 
                         ArrayList<Integer> list = new ArrayList<Integer>();
                         list.add(null);
                         list.add(pieceStart.get(1) + x * distance);
-
+                        list.add(pieceStart.get(2));
 
                         if (pieceStart.get(1) + x * distance == pieceEnd.get(1) && pieceStart.get(2) == pieceEnd.get(2)) {
                             return true;
@@ -270,7 +307,7 @@ public class Board {
 
             for (int y = 0 - 1; y <= 1; y += 2) {
 
-                int distance = 0;
+                int distance = 1;
                 while (true) {
 
                     ArrayList<Integer> list = new ArrayList<Integer>();
@@ -289,12 +326,13 @@ public class Board {
 
                 for (int x = 0 - 1; x <= 1; x += 2) {
 
-                    distance = 0;
+                    distance = 1;
                     while (true) {
 
                         ArrayList<Integer> list = new ArrayList<Integer>();
                         list.add(null);
                         list.add(pieceStart.get(1) + x * distance);
+                        list.add(pieceStart.get(1));
 
 
                         if (pieceStart.get(1) + x * distance == pieceEnd.get(1) && pieceStart.get(2) == pieceEnd.get(2)) {
@@ -328,9 +366,66 @@ public class Board {
                 }
             }
         } else if (pieceStart.get(0) == PIECE_KING) {
-
+            if(Math.abs(pieceEnd.get(1) - pieceStart.get(1)) <= 1 && Math.abs(pieceEnd.get(2) - pieceStart.get(2)) <= 1) {
+                return true;
+            }
+            else {
+                return false;
+            }
         }
 
+        return false;
+    }
+
+    public int evaluatePosition(boolean color) {
+        int value = 0;
+        if(color == WHITE) {
+            for(int i = 0; i < whitePieces.size(); i++) {
+                if(whitePieces.get(i).get(0) == PIECE_PAWN) {
+                    value += PAWN_VALUE;
+                }
+                else if(whitePieces.get(i).get(0) == PIECE_KNIGHT) {
+                    value += KNIGHT_VALUE;
+                }
+                else if(whitePieces.get(i).get(0) == PIECE_BISHOP) {
+                    value += BISHOP_VALUE;
+                }
+                else if(whitePieces.get(i).get(0) == PIECE_ROOK) {
+                    value += ROOK_VALUE;
+                }
+                else if(whitePieces.get(i).get(0) == PIECE_QUEEN) {
+                    value += QUEEN_VALUE;
+                }
+                else if(whitePieces.get(i).get(0) == PIECE_KING) {
+                    value += KING_VALUE;
+                }
+                
+            }
+        }
+        else {
+            for(int i = 0; i < blackPieces.size(); i++) {
+                if(blackPieces.get(i).get(0) == PIECE_PAWN) {
+                    value += PAWN_VALUE;
+                }
+                else if(blackPieces.get(i).get(0) == PIECE_KNIGHT) {
+                    value += KNIGHT_VALUE;
+                }
+                else if(blackPieces.get(i).get(0) == PIECE_BISHOP) {
+                    value += BISHOP_VALUE;
+                }
+                else if(blackPieces.get(i).get(0) == PIECE_ROOK) {
+                    value += ROOK_VALUE;
+                }
+                else if(blackPieces.get(i).get(0) == PIECE_QUEEN) {
+                    value += QUEEN_VALUE;
+                }
+                else if(blackPieces.get(i).get(0) == PIECE_KING) {
+                    value += KING_VALUE;
+                }
+
+            }
+        }
+        return value;
     }
 
     public void placePieces() {
@@ -344,7 +439,7 @@ public class Board {
             ArrayList<Integer> list = new ArrayList<Integer>();
             list.add(PIECE_PAWN);
             list.add(i);
-            list.add(2);
+            list.add(1);
             whitePieces.add(list);
         }
 
