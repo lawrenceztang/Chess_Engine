@@ -51,19 +51,25 @@ public class Board {
             for (int i = 0; i < whitePieces.size(); i++) {
                 for(int x = 0; x < 8; x++) {
                     for(int y = 0; y < 8; y++) {
+
                         ArrayList<Integer> list = new ArrayList<Integer>();
+                        list.add(null);
                         list.add(x);
                         list.add(y);
-                        if(checkValidity(whitePieces.get(i), list)) {
+
+                        ArrayList<Integer> temp = Util.create1DCopy(whitePieces.get(i));
+                        temp.set(0, null);
+
+                        if(checkValidity(temp, list)) {
                             ArrayList<ArrayList<Integer>> list1 = new ArrayList<ArrayList<Integer>>();
                             list1.add(new ArrayList<Integer>());
                             list1.add(new ArrayList<Integer>());
                             list1.get(0).add(null);
-                            list1.get(0).add(whitePieces.get(i).get(0));
                             list1.get(0).add(whitePieces.get(i).get(1));
+                            list1.get(0).add(whitePieces.get(i).get(2));
                             list1.get(1).add(null);
-                            list1.get(1).add(list.get(0));
                             list1.get(1).add(list.get(1));
+                            list1.get(1).add(list.get(2));
                             out.add(list1);
                         }
                     }
@@ -74,20 +80,23 @@ public class Board {
             for (int i = 0; i < blackPieces.size(); i++) {
                 for(int x = 0; x < 8; x++) {
                     for(int y = 0; y < 8; y++) {
+
                         ArrayList<Integer> list = new ArrayList<Integer>();
                         list.add(null);
                         list.add(x);
                         list.add(y);
-                        if(checkValidity(blackPieces.get(i), list)) {
+
+                        ArrayList<Integer> temp = Util.create1DCopy(blackPieces.get(i));
+                        temp.set(0, null);
+
+                        if(checkValidity(temp, list)) {
                             ArrayList<ArrayList<Integer>> list1 = new ArrayList<ArrayList<Integer>>();
                             list1.add(new ArrayList<Integer>());
                             list1.add(new ArrayList<Integer>());
-                            list1.get(0).add(null);
                             list1.get(0).add(blackPieces.get(i).get(1));
                             list1.get(0).add(blackPieces.get(i).get(2));
-                            list1.get(1).add(null);
-                            list1.get(1).add(list.get(0));
                             list1.get(1).add(list.get(1));
+                            list1.get(1).add(list.get(2));
                             out.add(list1);
                         }
                     }
@@ -98,6 +107,9 @@ public class Board {
     }
 
     public boolean movePieces(ArrayList<Integer> positionStart, ArrayList<Integer> positionEnd) {
+
+        positionEnd.add(0, null);
+        positionStart.add(0, null);
 
         if (checkValidity(positionStart, positionEnd)) {
             if (turn == WHITE) {
@@ -111,6 +123,7 @@ public class Board {
                 whitePieces.get(temp).set(2, positionEnd.get(2));
 
             } else {
+
                 int temp = Util.searchEqualEntry(whitePieces, positionEnd);
                 if (temp != Util.NO_ENTRY) {
                     whitePieces.remove(temp);
@@ -129,9 +142,6 @@ public class Board {
     }
 
     public boolean checkValidity(ArrayList<Integer> positionStart, ArrayList<Integer> positionEnd) {
-
-        positionEnd.add(0, null);
-        positionStart.add(0, null);
 
         if (turn == BLACK && Util.searchEqualEntry(blackPieces, positionEnd) != Util.NO_ENTRY) {
             return false;
@@ -196,6 +206,18 @@ public class Board {
                 }
             }
         }
+
+        if(turn == WHITE) {
+            if (whitePieces.get(Util.searchEqualEntry(whitePieces, positionStart)).get(0) == PIECE_PAWN && positionEnd.get(1) != positionStart.get(1) && Util.searchEqualEntry(blackPieces, positionEnd) == -1) {
+                return false;
+            }
+        }
+        else {
+            if (blackPieces.get(Util.searchEqualEntry(blackPieces, positionStart)).get(0) == PIECE_PAWN && positionEnd.get(1) != positionStart.get(1) && Util.searchEqualEntry(blackPieces, positionEnd) == -1) {
+                return false;
+            }
+        }
+
 
         ArrayList<Integer> test = new ArrayList<Integer>();
         test.add(0);

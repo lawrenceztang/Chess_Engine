@@ -41,4 +41,12 @@ public class Util {
         return out;
     }
 
+    public static ArrayList<Integer> create1DCopy (ArrayList<Integer> in) {
+        ArrayList<Integer> out = new ArrayList<Integer>();
+        for(int i = 0; i < in.size(); i++) {
+            out.add(in.get(i));
+        }
+        return out;
+    }
+
 }
