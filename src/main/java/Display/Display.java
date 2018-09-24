@@ -48,11 +48,10 @@ public class Display extends JFrame{
             int selectPieceX = NULL;
             int selectPieceY = NULL;
 
+            boolean calculating = false;
+
             @Override
             public void mousePressed(MouseEvent e) {
-
-
-
 
                 int x = e.getX() / (CANVAS_WIDTH / 8);
                 int y = 7 - e.getY() / (CANVAS_HEIGHT / 8);
@@ -70,8 +69,9 @@ public class Display extends JFrame{
                     listEnd.add(y);
 
 
+                    if(!calculating && board.movePieces(listStart, listEnd)) {
 
-                    if(board.movePieces(listStart, listEnd)) {
+                        calculating = true;
                         selectPieceX = NULL;
                         selectPieceY = NULL;
 
@@ -86,6 +86,7 @@ public class Display extends JFrame{
                         }
 
                         canvas.repaint();
+                        calculating = false;
                     }
                     else {
                         selectPieceX = x;

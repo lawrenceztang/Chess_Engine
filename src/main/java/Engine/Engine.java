@@ -40,7 +40,6 @@ public class Engine {
             ArrayList<ArrayList<ArrayList<Integer>>> maxScoreAndMoves = null;
 
             if(moves.size() == 0) {
-                new Display(board);
                 if((startingTurns - turnsLeft) % 2 == 0) {
                     maxScoreAndMoves.add(new ArrayList<ArrayList<Integer>>());
                     maxScoreAndMoves.get(0).add(new ArrayList<Integer>());
@@ -51,6 +50,7 @@ public class Engine {
                     maxScoreAndMoves.get(0).add(new ArrayList<Integer>());
                     maxScoreAndMoves.get(0).get(0).add(-1000);
                 }
+                return maxScoreAndMoves;
             }
 
             for (int i = 0; i < moves.size(); i++) {
@@ -72,13 +72,13 @@ public class Engine {
                         bestMove = i;
                     }
                     if ((startingTurns - turnsLeft) % 2 == 0) {
-                        if (scoreAndMoves.get(0).get(0).get(0) < maxScoreAndMoves.get(0).get(0).get(0)) {
+                        if (scoreAndMoves.get(0).get(0).get(0) < maxScoreAndMoves.get(0).get(0).get(0) || scoreAndMoves.get(0).get(0).get(0) == maxScoreAndMoves.get(0).get(0).get(0) && Math.abs(3 - moves.get(i).get(1).get(1)) < Math.abs(3 - moves.get(bestMove).get(1).get(1))) {
 
                             maxScoreAndMoves = scoreAndMoves;
                             bestMove = i;
                         }
                     } else {
-                        if (scoreAndMoves.get(0).get(0).get(0) > maxScoreAndMoves.get(0).get(0).get(0)) {
+                        if (scoreAndMoves.get(0).get(0).get(0) > maxScoreAndMoves.get(0).get(0).get(0) || scoreAndMoves.get(0).get(0).get(0) == maxScoreAndMoves.get(0).get(0).get(0) && Math.abs(3 - moves.get(i).get(1).get(1)) < Math.abs(3 - moves.get(bestMove).get(1).get(1))) {
                             maxScoreAndMoves = scoreAndMoves;
                             bestMove = i;
                         }
