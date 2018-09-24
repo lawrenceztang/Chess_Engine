@@ -9,8 +9,10 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+
 
 
 public class Display extends JFrame{
@@ -23,7 +25,7 @@ public class Display extends JFrame{
     public final int CANVAS_WIDTH = 1000;
     public final int CANVAS_HEIGHT = 1000;
 
-    public Display(Board in) {
+    public Display(Board in) throws Exception{
         this.board = in;
 
         canvas = new DrawCanvas();    // Construct the drawing canvas
@@ -49,27 +51,41 @@ public class Display extends JFrame{
             @Override
             public void mousePressed(MouseEvent e) {
 
+
+
+
                 int x = e.getX() / (CANVAS_WIDTH / 8);
                 int y = 7 - e.getY() / (CANVAS_HEIGHT / 8);
 
                 if(selectPieceX != NULL) {
 
                     ArrayList<Integer> listStart = new ArrayList<Integer>();
+                    listStart.add(null);
                     listStart.add(selectPieceX);
                     listStart.add(selectPieceY);
 
                     ArrayList<Integer> listEnd = new ArrayList<Integer>();
+                    listEnd.add(null);
                     listEnd.add(x);
                     listEnd.add(y);
+
+
 
                     if(board.movePieces(listStart, listEnd)) {
                         selectPieceX = NULL;
                         selectPieceY = NULL;
-                        canvas.repaint();
 
-                        Engine engine = new Engine(board);
-                        ArrayList<ArrayList<ArrayList<Integer>>> temp = engine.evaluateMoves(board, 5);
-                        System.out.println(temp.get(1).get(0).get(0) + "," + temp.get(1).get(0).get(1) + "," + temp.get(1).get(1).get(0) + "," + temp.get(1).get(1).get(1));
+                        try {
+
+                            Engine engine = new Engine(board);
+                            ArrayList<ArrayList<ArrayList<Integer>>> temp = engine.evaluateMoves(board, 3);
+                            board.movePieces(temp.get(1).get(0), temp.get(1).get(1));
+                        }
+                        catch(Exception ee) {
+
+                        }
+
+                        canvas.repaint();
                     }
                     else {
                         selectPieceX = x;

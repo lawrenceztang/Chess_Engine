@@ -1,5 +1,6 @@
 package Game;
 
+import Display.Display;
 import Util.Util;
 
 import java.util.ArrayList;
@@ -93,8 +94,10 @@ public class Board {
                             ArrayList<ArrayList<Integer>> list1 = new ArrayList<ArrayList<Integer>>();
                             list1.add(new ArrayList<Integer>());
                             list1.add(new ArrayList<Integer>());
+                            list1.get(0).add(null);
                             list1.get(0).add(blackPieces.get(i).get(1));
                             list1.get(0).add(blackPieces.get(i).get(2));
+                            list1.get(1).add(null);
                             list1.get(1).add(list.get(1));
                             list1.get(1).add(list.get(2));
                             out.add(list1);
@@ -107,9 +110,6 @@ public class Board {
     }
 
     public boolean movePieces(ArrayList<Integer> positionStart, ArrayList<Integer> positionEnd) {
-
-        positionEnd.add(0, null);
-        positionStart.add(0, null);
 
         if (checkValidity(positionStart, positionEnd)) {
             if (turn == WHITE) {
@@ -180,7 +180,7 @@ public class Board {
             kingFind.add(null);
 
             for(int i = 0; i < copy.whitePieces.size(); i++) {
-                if(checkAbleToMove(copy.whitePieces.get(i), copy.blackPieces.get(Util.searchEqualEntry(copy.blackPieces, kingFind)))) {
+                if(copy.checkAbleToMove(copy.whitePieces.get(i), copy.blackPieces.get(Util.searchEqualEntry(copy.blackPieces, kingFind)))) {
                     return false;
                 }
             }
@@ -201,26 +201,34 @@ public class Board {
             kingFind.add(null);
 
             for(int i = 0; i < copy.blackPieces.size(); i++) {
-                if(checkAbleToMove(copy.blackPieces.get(i), copy.whitePieces.get(Util.searchEqualEntry(copy.whitePieces, kingFind)))) {
+                if(copy.checkAbleToMove(copy.blackPieces.get(i), copy.whitePieces.get(Util.searchEqualEntry(copy.whitePieces, kingFind)))) {
                     return false;
                 }
             }
         }
 
         if(turn == WHITE) {
-            if (whitePieces.get(Util.searchEqualEntry(whitePieces, positionStart)).get(0) == PIECE_PAWN && positionEnd.get(1) != positionStart.get(1) && Util.searchEqualEntry(blackPieces, positionEnd) == -1) {
-                return false;
+            if (whitePieces.get(Util.searchEqualEntry(whitePieces, positionStart)).get(0) == PIECE_PAWN) {
+                if(positionEnd.get(1) != positionStart.get(1) && Util.searchEqualEntry(blackPieces, positionEnd) == -1) {
+                    return false;
+                }
+
+                if(positionEnd.get(1) == positionStart.get(1) && positionEnd.get(2) == positionStart.get(2) + 1 && Util.searchEqualEntry(whitePieces, positionEnd) == -1 && Util.searchEqualEntry(blackPieces, positionEnd) == -1) {
+                    return true;
+                }
             }
         }
         else {
-            if (blackPieces.get(Util.searchEqualEntry(blackPieces, positionStart)).get(0) == PIECE_PAWN && positionEnd.get(1) != positionStart.get(1) && Util.searchEqualEntry(blackPieces, positionEnd) == -1) {
-                return false;
+            if (blackPieces.get(Util.searchEqualEntry(blackPieces, positionStart)).get(0) == PIECE_PAWN) {
+                if(positionEnd.get(1) != positionStart.get(1) && Util.searchEqualEntry(whitePieces, positionEnd) == -1) {
+                    return false;
+                }
+                if(positionEnd.get(1) == positionStart.get(1) && positionEnd.get(2) == positionStart.get(2) - 1 && Util.searchEqualEntry(whitePieces, positionEnd) == -1 && Util.searchEqualEntry(blackPieces, positionEnd) == -1) {
+                    return true;
+                }
             }
         }
 
-
-        ArrayList<Integer> test = new ArrayList<Integer>();
-        test.add(0);
         if (checkAbleToMove(positionStart, positionEnd)) {
             return true;
         } else {
@@ -233,13 +241,13 @@ public class Board {
 
         if (pieceStart.get(0) == PIECE_PAWN) {
             if (turn == WHITE) {
-                if ((pieceEnd.get(1) == pieceStart.get(1) + 1 || pieceEnd.get(1) == pieceStart.get(1) - 1 || pieceEnd.get(1) == pieceStart.get(1)) && pieceEnd.get(2) == pieceStart.get(2) + 1) {
+                if ((pieceEnd.get(1) == pieceStart.get(1) + 1 || pieceEnd.get(1) == pieceStart.get(1) - 1) && pieceEnd.get(2) == pieceStart.get(2) + 1) {
                     return true;
                 } else {
                     return false;
                 }
             } else {
-                if ((pieceEnd.get(1) == pieceStart.get(1) + 1 || pieceEnd.get(1) == pieceStart.get(1) - 1 || pieceEnd.get(1) == pieceStart.get(1)) && pieceEnd.get(2) == pieceStart.get(2) - 1) {
+                if ((pieceEnd.get(1) == pieceStart.get(1) + 1 || pieceEnd.get(1) == pieceStart.get(1) - 1) && pieceEnd.get(2) == pieceStart.get(2) - 1) {
                     return true;
                 } else {
                     return false;
@@ -276,9 +284,11 @@ public class Board {
 
                         if (pieceStart.get(1) + x * distance == pieceEnd.get(1) && pieceStart.get(2) + y * distance == pieceEnd.get(2)) {
                             return true;
-                        } else if (pieceStart.get(1) + x * distance > 7 || pieceStart.get(1) + x * distance < 0 || pieceStart.get(2) + y * distance > 7 || pieceStart.get(2) + y * distance < 0 || Util.searchEqualEntry(whitePieces, list) != Util.NO_ENTRY || Util.searchEqualEntry(blackPieces, list) != Util.NO_ENTRY) {
+                        }
+                        else if (pieceStart.get(1) + x * distance > 7 || pieceStart.get(1) + x * distance < 0 || pieceStart.get(2) + y * distance > 7 || pieceStart.get(2) + y * distance < 0 || Util.searchEqualEntry(whitePieces, list) != Util.NO_ENTRY || Util.searchEqualEntry(blackPieces, list) != Util.NO_ENTRY) {
                             break;
                         }
+
 
                         distance++;
                     }
