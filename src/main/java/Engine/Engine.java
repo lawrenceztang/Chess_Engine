@@ -20,7 +20,7 @@ public class Engine {
 
     public boolean showImage = false;
 
-    public ArrayList<ArrayList<ArrayList<Integer>>> evaluateMoves(final Board board, int turnsLeft) throws Exception {
+    public ArrayList<ArrayList<ArrayList<Integer>>> evaluateMoves(final Board board, int turnsLeft) {
 
         if (startingTurns == -1) {
             startingTurns = turnsLeft;
@@ -34,18 +34,18 @@ public class Engine {
             return out;
         } else {
 
-            ArrayList<ArrayList<ArrayList<Integer>>> moves = board.getPossibleMoves();
+            ArrayList<ArrayList<ArrayList<Integer>>> moves = board.getPossibleMovesFast();
 
             int bestMove = 0;
             ArrayList<ArrayList<ArrayList<Integer>>> maxScoreAndMoves = null;
 
-            if(moves.size() == 0) {
-                if((startingTurns - turnsLeft) % 2 == 0) {
+            if (moves.size() == 0) {
+                maxScoreAndMoves = new ArrayList<ArrayList<ArrayList<Integer>>>();
+                if ((startingTurns - turnsLeft) % 2 == 0) {
                     maxScoreAndMoves.add(new ArrayList<ArrayList<Integer>>());
                     maxScoreAndMoves.get(0).add(new ArrayList<Integer>());
                     maxScoreAndMoves.get(0).get(0).add(1000);
-                }
-                else {
+                } else {
                     maxScoreAndMoves.add(new ArrayList<ArrayList<Integer>>());
                     maxScoreAndMoves.get(0).add(new ArrayList<Integer>());
                     maxScoreAndMoves.get(0).get(0).add(-1000);
@@ -56,9 +56,10 @@ public class Engine {
             for (int i = 0; i < moves.size(); i++) {
 
                 Board copy = new Board(board.whitePieces, board.blackPieces, board.turn);
-                if (copy.movePieces(moves.get(i).get(0), moves.get(i).get(1))) {
+                copy.moveNoCheck(moves.get(i).get(0), moves.get(i).get(1));
+                copy.turn = !copy.turn;
 
-                    ArrayList<ArrayList<ArrayList<Integer>>> scoreAndMoves = evaluateMoves(copy, turnsLeft - 1);
+                ArrayList<ArrayList<ArrayList<Integer>>> scoreAndMoves = evaluateMoves(copy, turnsLeft - 1);
 
 //                    if(!showImage && turnsLeft == 1 && scoreAndMoves.get(0).get(0).get(0) < 0) {
 //                        new Display(copy);
@@ -67,27 +68,24 @@ public class Engine {
 //                        showImage = !showImage;
 //                    }
 
-                    if (maxScoreAndMoves == null) {
+                if (maxScoreAndMoves == null) {
+                    maxScoreAndMoves = scoreAndMoves;
+                    bestMove = i;
+                }
+                if ((startingTurns - turnsLeft) % 2 == 0) {
+                    if (scoreAndMoves.get(0).get(0).get(0) < maxScoreAndMoves.get(0).get(0).get(0) || scoreAndMoves.get(0).get(0).get(0) == maxScoreAndMoves.get(0).get(0).get(0) && Math.abs(3 - moves.get(i).get(1).get(1)) < Math.abs(3 - moves.get(bestMove).get(1).get(1))) {
+
                         maxScoreAndMoves = scoreAndMoves;
                         bestMove = i;
                     }
-                    if ((startingTurns - turnsLeft) % 2 == 0) {
-                        if (scoreAndMoves.get(0).get(0).get(0) < maxScoreAndMoves.get(0).get(0).get(0) || scoreAndMoves.get(0).get(0).get(0) == maxScoreAndMoves.get(0).get(0).get(0) && Math.abs(3 - moves.get(i).get(1).get(1)) < Math.abs(3 - moves.get(bestMove).get(1).get(1))) {
-
-                            maxScoreAndMoves = scoreAndMoves;
-                            bestMove = i;
-                        }
-                    } else {
-                        if (scoreAndMoves.get(0).get(0).get(0) > maxScoreAndMoves.get(0).get(0).get(0) || scoreAndMoves.get(0).get(0).get(0) == maxScoreAndMoves.get(0).get(0).get(0) && Math.abs(3 - moves.get(i).get(1).get(1)) < Math.abs(3 - moves.get(bestMove).get(1).get(1))) {
-                            maxScoreAndMoves = scoreAndMoves;
-                            bestMove = i;
-                        }
+                } else {
+                    if (scoreAndMoves.get(0).get(0).get(0) > maxScoreAndMoves.get(0).get(0).get(0) || scoreAndMoves.get(0).get(0).get(0) == maxScoreAndMoves.get(0).get(0).get(0) && Math.abs(3 - moves.get(i).get(1).get(1)) < Math.abs(3 - moves.get(bestMove).get(1).get(1))) {
+                        maxScoreAndMoves = scoreAndMoves;
+                        bestMove = i;
                     }
-
                 }
 
             }
-
 
             maxScoreAndMoves.add(1, moves.get(bestMove));
 
