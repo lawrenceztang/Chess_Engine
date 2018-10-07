@@ -148,7 +148,7 @@ public class Board {
                 } else if (whitePieces.get(i).get(0) == PIECE_KNIGHT) {
 
                     for (int x = -2; x <= 2; x += 4) {
-                        for (int y = -1; y <= 1; y += 1) {
+                        for (int y = -1; y <= 1; y += 2) {
                             ArrayList<Integer> temp = new ArrayList<Integer>();
                             temp.add(null);
                             temp.add(whitePieces.get(i).get(1) + x);
@@ -294,7 +294,7 @@ public class Board {
                         }
                     }
 
-                    for (int y = 0 - 1; y <= 1; y += 2) {
+                    for (int y = -1; y <= 1; y += 2) {
 
                         int distance = 1;
                         while (true) {
@@ -310,7 +310,7 @@ public class Board {
                             if (!checkInBounds(temp) || Util.searchEqualEntry(whitePieces, temp) != Util.NO_ENTRY) {
                                 break;
                             } else if (!inCheck(copy)) {
-                                if (Util.searchEqualEntry(whitePieces, temp) != Util.NO_ENTRY) {
+                                if (Util.searchEqualEntry(blackPieces, temp) != Util.NO_ENTRY) {
                                     out.add(getMove(temp, i, turn));
                                     break;
                                 } else {
@@ -320,7 +320,7 @@ public class Board {
                             distance++;
                         }
 
-                        for (int x = 0 - 1; x <= 1; x += 2) {
+                        for (int x = -1; x <= 1; x += 2) {
 
                             distance = 1;
                             while (true) {
@@ -336,7 +336,7 @@ public class Board {
                                 if (!checkInBounds(temp) || Util.searchEqualEntry(whitePieces, temp) != Util.NO_ENTRY) {
                                     break;
                                 } else if (!inCheck(copy)) {
-                                    if (Util.searchEqualEntry(whitePieces, temp) != Util.NO_ENTRY) {
+                                    if (Util.searchEqualEntry(blackPieces, temp) != Util.NO_ENTRY) {
                                         out.add(getMove(temp, i, turn));
                                         break;
                                     } else {
@@ -411,7 +411,7 @@ public class Board {
                 } else if (blackPieces.get(i).get(0) == PIECE_KNIGHT) {
 
                     for (int x = -2; x <= 2; x += 4) {
-                        for (int y = -1; y <= 1; y += 1) {
+                        for (int y = -1; y <= 1; y += 2) {
                             ArrayList<Integer> temp = new ArrayList<Integer>();
                             temp.add(null);
                             temp.add(blackPieces.get(i).get(1) + x);
@@ -785,23 +785,36 @@ public class Board {
 
         if (turn == WHITE) {
             if (whitePieces.get(Util.searchEqualEntry(whitePieces, positionStart)).get(0) == PIECE_PAWN) {
+                if (positionStart.get(2) == 1) {
+                    if (positionEnd.get(1) == positionStart.get(1) && positionEnd.get(2) == positionStart.get(2) + 2 && Util.searchEqualEntry(whitePieces, positionEnd) == Util.NO_ENTRY && Util.searchEqualEntry(blackPieces, positionEnd) == Util.NO_ENTRY) {
+                        return true;
+                    }
+                }
+
                 if (positionEnd.get(1) != positionStart.get(1) && Util.searchEqualEntry(blackPieces, positionEnd) == -1) {
                     return false;
                 }
 
-                if (positionEnd.get(1) == positionStart.get(1) && positionEnd.get(2) == positionStart.get(2) + 1 && Util.searchEqualEntry(whitePieces, positionEnd) == -1 && Util.searchEqualEntry(blackPieces, positionEnd) == -1) {
+                if (positionEnd.get(1) == positionStart.get(1) && positionEnd.get(2) == positionStart.get(2) + 1 && Util.searchEqualEntry(whitePieces, positionEnd) == Util.NO_ENTRY && Util.searchEqualEntry(blackPieces, positionEnd) == Util.NO_ENTRY) {
+                    return true;
+                }
+
+            }
+        } else {
+            if (positionStart.get(2) == 6) {
+                if (positionEnd.get(1) == positionStart.get(1) && positionEnd.get(2) == positionStart.get(2) - 2 && Util.searchEqualEntry(whitePieces, positionEnd) == Util.NO_ENTRY && Util.searchEqualEntry(blackPieces, positionEnd) == Util.NO_ENTRY) {
                     return true;
                 }
             }
-        } else {
             if (blackPieces.get(Util.searchEqualEntry(blackPieces, positionStart)).get(0) == PIECE_PAWN) {
                 if (positionEnd.get(1) != positionStart.get(1) && Util.searchEqualEntry(whitePieces, positionEnd) == -1) {
                     return false;
                 }
-                if (positionEnd.get(1) == positionStart.get(1) && positionEnd.get(2) == positionStart.get(2) - 1 && Util.searchEqualEntry(whitePieces, positionEnd) == -1 && Util.searchEqualEntry(blackPieces, positionEnd) == -1) {
+                if (positionEnd.get(1) == positionStart.get(1) && positionEnd.get(2) == positionStart.get(2) - 1 && Util.searchEqualEntry(whitePieces, positionEnd) == Util.NO_ENTRY && Util.searchEqualEntry(blackPieces, positionEnd) == Util.NO_ENTRY) {
                     return true;
                 }
             }
+
         }
 
         if (checkAbleToMove(positionStart, positionEnd)) {
@@ -828,15 +841,13 @@ public class Board {
                     if (board.checkAbleToMove(board.whitePieces.get(i), board.blackPieces.get(Util.searchEqualEntry(board.blackPieces, kingFind)))) {
                         return true;
                     }
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     try {
-                        if(doo) {
+                        if (doo) {
                             new Display(board);
                             doo = false;
                         }
-                    }
-                    catch (Exception es) {
+                    } catch (Exception es) {
 
                     }
                 }
@@ -934,26 +945,26 @@ public class Board {
                     }
                     distance++;
                 }
+            }
+            for (int x = 0 - 1; x <= 1; x += 2) {
 
-                for (int x = 0 - 1; x <= 1; x += 2) {
+                int distance = 1;
+                while (true) {
 
-                    distance = 1;
-                    while (true) {
+                    ArrayList<Integer> list = new ArrayList<Integer>();
+                    list.add(null);
+                    list.add(pieceStart.get(1) + x * distance);
+                    list.add(pieceStart.get(2));
 
-                        ArrayList<Integer> list = new ArrayList<Integer>();
-                        list.add(null);
-                        list.add(pieceStart.get(1) + x * distance);
-                        list.add(pieceStart.get(2));
-
-                        if (pieceStart.get(1) + x * distance == pieceEnd.get(1) && pieceStart.get(2) == pieceEnd.get(2)) {
-                            return true;
-                        } else if (pieceStart.get(1) + x * distance > 7 || pieceStart.get(1) + x * distance < 0 || Util.searchEqualEntry(whitePieces, list) != Util.NO_ENTRY || Util.searchEqualEntry(blackPieces, list) != Util.NO_ENTRY) {
-                            break;
-                        }
-                        distance++;
+                    if (pieceStart.get(1) + x * distance == pieceEnd.get(1) && pieceStart.get(2) == pieceEnd.get(2)) {
+                        return true;
+                    } else if (pieceStart.get(1) + x * distance > 7 || pieceStart.get(1) + x * distance < 0 || Util.searchEqualEntry(whitePieces, list) != Util.NO_ENTRY || Util.searchEqualEntry(blackPieces, list) != Util.NO_ENTRY) {
+                        break;
                     }
+                    distance++;
                 }
             }
+
         } else if (pieceStart.get(0) == PIECE_QUEEN) {
 
             for (int y = -1; y <= 1; y += 2) {
@@ -974,27 +985,27 @@ public class Board {
                     }
                     distance++;
                 }
+            }
+            for (int x = -1; x <= 1; x += 2) {
 
-                for (int x = -1; x <= 1; x += 2) {
+                int distance = 1;
+                while (true) {
 
-                    distance = 1;
-                    while (true) {
-
-                        ArrayList<Integer> list = new ArrayList<Integer>();
-                        list.add(null);
-                        list.add(pieceStart.get(1) + x * distance);
-                        list.add(pieceStart.get(1));
+                    ArrayList<Integer> list = new ArrayList<Integer>();
+                    list.add(null);
+                    list.add(pieceStart.get(1) + x * distance);
+                    list.add(pieceStart.get(2));
 
 
-                        if (pieceStart.get(1) + x * distance == pieceEnd.get(1) && pieceStart.get(2) == pieceEnd.get(2)) {
-                            return true;
-                        } else if (pieceStart.get(1) + x * distance > 7 || pieceStart.get(1) + x * distance < 0 || Util.searchEqualEntry(whitePieces, list) != Util.NO_ENTRY || Util.searchEqualEntry(blackPieces, list) != Util.NO_ENTRY) {
-                            break;
-                        }
-                        distance++;
+                    if (pieceStart.get(1) + x * distance == pieceEnd.get(1) && pieceStart.get(2) == pieceEnd.get(2)) {
+                        return true;
+                    } else if (pieceStart.get(1) + x * distance > 7 || pieceStart.get(1) + x * distance < 0 || Util.searchEqualEntry(whitePieces, list) != Util.NO_ENTRY || Util.searchEqualEntry(blackPieces, list) != Util.NO_ENTRY) {
+                        break;
                     }
+                    distance++;
                 }
             }
+
 
             for (int x = -1; x <= 1; x += 2) {
                 for (int y = -1; y <= 1; y += 2) {
