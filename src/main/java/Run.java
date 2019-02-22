@@ -9,6 +9,7 @@ public class Run {
 
     public static void main(String[] args) throws Exception{
         Board board = new Board();
+        board.placePieces();
         Display display = new Display(board);
 
     }

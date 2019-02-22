@@ -3,16 +3,18 @@ package Game;
 import Display.Display;
 import Util.Util;
 
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class Board {
 
-    public final int PIECE_PAWN = 0;
-    public final int PIECE_KNIGHT = 1;
-    public final int PIECE_BISHOP = 2;
-    public final int PIECE_ROOK = 3;
-    public final int PIECE_QUEEN = 4;
-    public final int PIECE_KING = 5;
+    public final static int PIECE_PAWN = 0;
+    public final static int PIECE_KNIGHT = 1;
+    public final static int PIECE_BISHOP = 2;
+    public final static int PIECE_ROOK = 3;
+    public final static int PIECE_QUEEN = 4;
+    public final static int PIECE_KING = 5;
 
     public final static int PAWN_VALUE = 1;
     public final static int KNIGHT_VALUE = 3;
@@ -27,8 +29,8 @@ public class Board {
 
     public ArrayList<ArrayList<Integer>> blackPieces;
 
-    public final boolean WHITE = false;
-    public final boolean BLACK = true;
+    public static final boolean WHITE = false;
+    public static final boolean BLACK = true;
 
     public boolean turn = WHITE;
 
@@ -40,8 +42,8 @@ public class Board {
     }
 
     public Board() {
-        placePieces();
-
+        whitePieces = new ArrayList<ArrayList<Integer>>();
+        blackPieces = new ArrayList<ArrayList<Integer>>();
     }
 
     public void moveNoCheck(ArrayList<Integer> start, ArrayList<Integer> end) {
@@ -118,6 +120,8 @@ public class Board {
                     copy.moveNoCheck(whitePieces.get(i), temp);
 
                     if (checkInBounds(temp) && Util.searchEqualEntry(blackPieces, temp) != Util.NO_ENTRY && !inCheck(copy)) {
+
+
                         out.add(getMove(temp, i, turn));
                     }
 
@@ -1079,9 +1083,6 @@ public class Board {
     }
 
     public void placePieces() {
-
-        whitePieces = new ArrayList<ArrayList<Integer>>();
-        blackPieces = new ArrayList<ArrayList<Integer>>();
 
 
         //place pawns

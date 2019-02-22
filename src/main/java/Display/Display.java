@@ -74,7 +74,7 @@ public class Display extends JFrame {
                         selectPieceY = NULL;
 
                         Engine engine = new Engine(board);
-                        ArrayList<ArrayList<ArrayList<Integer>>> temp = engine.evaluateMoves(board, 4);
+                        ArrayList<ArrayList<ArrayList<Integer>>> temp = engine.evaluateMoves(board, 3);
                         if(temp.size() == 1) {
                             System.out.println("Victory");
                             System.exit(0);
